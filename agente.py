@@ -7,8 +7,12 @@
 # 1 --> Sin tratar
 # 0 --> Ya masajeado
 
-estado_area = {'superior': '0', 'medio': '0', 'bajo':'0'}
+# inicializando estados de nuestras areas
+estado_area = {'superior': '0', 'medio': '0', 'bajo':'0'}    
+# Guardamos el objeto actualizado y configurado por el usuario, para compararlo al final
+objeto_deseado = estado_area.copy()
 costo_ejecucion = 0
+
 def obtenerKeys(estado_area):
     list = []
     for area in estado_area.keys():
@@ -22,10 +26,10 @@ def obtenerValues():
     return list
 
 def logica_absoluta():
-    # inicializando estados de nuestras areas
-    objeto_deseado = estado_area.copy()
+
     recordar_areas = ['superior', 'medio', 'bajo']
     recordar_estados = [0, 0, 0]
+    ejecucion = 1
     
     accionar_area = input("Introduzca el área de inicio ") # El usuario puede ubicar el area por la cual desea empezar con los masajes
     accionar_area = accionar_area.lower() # Vuelve todo en minusculas
@@ -44,7 +48,11 @@ def logica_absoluta():
             recordar_estados[estado] = complemento_estados
             # Interactuamos con el objeto principal ó importante
             estado_area[area] = complemento_estados
+    ejecucion = 0
 
+    # Copiar el objeto inicial
+    objeto_inicial = estado_area.copy()
+    
     for key in estado_area.keys():
         if accionar_area == key:
             # Location A is Dirty.
@@ -54,42 +62,40 @@ def logica_absoluta():
                 print(f"La area {key} hace falta masajear")
                 # masajear el area y declararla como ya tratada '0'
                 estado_area[key] = '0'
-                costo_ejecucion += 1 # Incremento del costo de masaje por area en +1
+                ejecucion += 1 # Incremento del costo de masaje por area en +1
                 print(f"Masajeo en la area {key} del traje tactico")
-                print("Costo actual de ejecución: " + str(costo_ejecucion))
-                verificar_estados(key)
+                print(f"Costo actual de ejecución: {ejecucion}")
+                ejecucion += verificar_estados(key, ejecucion)
             elif estado_area.get(key) == '0':
                 print(f"La area {key} ya se enceuntra masajeado")
-                verificar_estados(key)
+                ejecucion += verificar_estados(key, ejecucion)
 
-def verificar_estados(anteriorArea):
+    return {"ejecucion": ejecucion, "objeto_inicial":objeto_inicial}
+
+def verificar_estados(anteriorArea, ejecucion):
+    costo = ejecucion
+    guardarArea = anteriorArea
     for area in estado_area:
-        if estado_area[area] == '1':
-            print(f"La area {area} hace falta masajear")
-            # masajear el area y declararla como ya tratada '0'
-            estado_area[area] = '0'
-            costo_ejecucion = costo_ejecucion + 1 # Incremento del costo de masaje por area en +1
-            print(f"Del area {anteriorArea} los movimeintos se trasladan al area {area}")
+        if(area != anteriorArea):
+            if estado_area[area] == '1':
+                print(f"La area {area} hace falta masajear")
+                # masajear el area y declararla como ya tratada '0'
+                estado_area[area] = '0'
+                costo += 1 # Incremento del costo de masaje por area en +1
+                print(f"Del area {guardarArea} los movimeintos se trasladan al area {area}")
 
-            print("Costo actual de ejecución: " + str(costo_ejecucion))
-        else:
-            print(f'EL area {area} ya se enceuntra masajeada')
-            print('No es necesario el conteo ejecución para el coste')
-    costo += 1
-    estado_area['nuevo'] = 'nuevo'
-    return {'costo': costo}
+                print(f"Costo actual de ejecución: {costo}")
+            else:
+                print(f'EL area {area} ya se enceuntra masajeada')
+                print('No es necesario el conteo ejecución para el coste')
+            guardarArea = area
+    return costo
 
+result = logica_absoluta()
+costo_ejecucion = result.get("ejecucion")
+objeto_inicial = result.get("objeto_inicial")
 
-result = verificar_estados(estado_area, 'superior', costo_ejecucion)
-costo_ejecucion += result['costo']
-print(costo_ejecucion)
-print(estado_area)
-            
-           
-   
-
-
-
-
-
-# logica_absoluta()
+print(f'El costo de ejecución es de: {costo_ejecucion}')
+print(f'El estado inicial es: {objeto_inicial}')
+print(f'El estado esperado es: {objeto_deseado}')
+print(f'El resultado final: {estado_area}')
